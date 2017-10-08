@@ -9,16 +9,12 @@ let {
 } = require('stream-token-parser');
 
 let whitespace = '[\\f\\n\\r\\t\\v ][\\f\\n\\r\\t\\v ]*';
-// .abcbf
-// .0
-// ._
-let nodeName = '\\.[\\_\\%a-zA-Z0-9][\\_\\%a-zA-Z0-9]*';
+let pathNodeName = '\\.[\\_\\%a-zA-Z0-9][\\_\\%a-zA-Z0-9]*';
 let variableName = '[\\_a-zA-Z][\\_a-zA-Z0-9]*'; //_abc, abc, ej89
 
 let xmlCharTextWithInnerBracket = '\\>[\\f\\n\\r\\t\\v ]*^[\\{\\<\\>\\}]^[\\<\\>]*^[\\}\\{\\<\\>]?[\\f\\n\\r\\t\\v ]*\\</';
 
-module.exports = [
-    {
+module.exports = [{
         priority: 1,
         match: 'true',
         name: 'true'
@@ -47,8 +43,8 @@ module.exports = [
 
     {
         priority: 1,
-        match: buildFSM(nodeName),
-        name: 'nodeName'
+        match: buildFSM(pathNodeName),
+        name: 'pathNodeName'
     },
     {
         priority: 1,
@@ -125,6 +121,11 @@ module.exports = [
         priority: 1,
         match: '}',
         name: '}'
+    },
+    {
+        priority: 1,
+        match: '.',
+        name: '.'
     },
 
     {

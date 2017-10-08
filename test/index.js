@@ -99,6 +99,16 @@ describe('index', () => {
     };
 
     it('xml tag', () => {
+        quickTest('<div/>', {
+            tagName: 'div',
+            props: {},
+            children: []
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
         quickTest('<div></div>', {
             tagName: 'div',
             props: {},
@@ -172,6 +182,18 @@ describe('index', () => {
     });
 
     it('xml attr', () => {
+        quickTest('<div id=2/>', {
+            "tagName": "div",
+            "props": {
+                id: 2
+            },
+            "children": []
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
         quickTest('<div id=2 "class"="common on!">gogogo!</div>', {
             "tagName": "div",
             "props": {
@@ -197,6 +219,44 @@ describe('index', () => {
             },
             xmlMap: {
                 createNode
+            }
+        });
+    });
+
+    it('path query', () => {
+        quickTest('.n1', 'hello!', {
+            source: {
+                n1: 'hello!'
+            }
+        });
+
+        quickTest('.0', 1, {
+            source: [1, 2, 3]
+        });
+
+        quickTest('.1', 2, {
+            source: [1, 2, 3]
+        });
+
+        quickTest('.a.b', 10, {
+            source: {
+                a: {
+                    b: 10
+                }
+            }
+        });
+    });
+
+    it('path variable', () => {
+        quickTest('.a.[next]', 100, {
+            source: {
+                a: {
+                    f: 100
+                }
+            },
+
+            variableMap: {
+                next: 'f'
             }
         });
     });

@@ -7,54 +7,16 @@ const {
 } = require('../res/grammer');
 const tokenTypes = require('../grammer/tokenTypes');
 const astTransfer = require('ast-transfer');
+const {
+    getValue,
+    lazyer
+} = require('./lazy');
 
-let LazyCode = function(args, fn) {
-    this.args = args;
-    this.fn = fn;
-}
-
-LazyCode.prototype.getValue = function() {
-    let params = [];
-    for (let i = 0, n = this.args.length; i < n; i++) {
-        params[i] = getValue(this.args[i]);
-    }
-    return this.fn.apply(undefined, params);
-}
-
-let getValue = (v) => {
-    if (v instanceof LazyCode) {
-        return v.getValue();
-    }
-    return v;
-}
-
-let lazyer = (fn) => (...args) => {
-    return new LazyCode(args, fn);
-};
-
-const jsonStyleAnnotationContext = {
-    number: (v) => Number(v),
-    string: (v) => JSON.parse(v),
-    'null': null,
-    'true': true,
-    'false': false,
-    array: lazyer((...args) => args),
-    object: lazyer((pairs) => {
-        let ret = {};
-        if (!pairs) return ret;
-        for (let i = 0, n = pairs.length; i < n; i++) {
-            let [key, value] = pairs[i];
-            ret[key] = value;
-        }
-        return ret;
-    })
-};
-
-const utilAnnorationContext = {
-    id: v => v,
-    appendTo: lazyer((v, list) => [v].concat(list))
-};
-
+const jsonStyleAnnotationContext = require('./annotationContext/jsonStyle');
+const utilAnnotationContext = require('./annotationContext/utilContext');
+const funStyleAnnotationContext = require('./annotationContext/funStyle');
+const variableContexter = require('./annotationContext/variableContexter');
+const xmlStyleContexter = require('./annotationContext/xmlStyleContexter');
 
 const defCreateNode = (tagName, props, children) => {
     return {
@@ -64,42 +26,39 @@ const defCreateNode = (tagName, props, children) => {
     };
 };
 
+let get = (source, path) => {
+    let cur = source;
+    for (let i = 0, n = path.length; i < n; i++) {
+        let item = path[i];
+        cur = cur[path[i]];
+    }
+    return cur;
+};
+
 let parser = ({
+    source = {},
     variableMap = {},
-    xmlMap: {
-        createNode = defCreateNode
-    } = {}
+    xmlMap
 } = {}) => {
+    let annotationContext = Object.assign({},
+        utilAnnotationContext,
+        jsonStyleAnnotationContext,
+        funStyleAnnotationContext,
+        variableContexter(variableMap),
+        xmlStyleContexter(xmlMap), {
+            pathNode: (pathNodeName) => {
+                return pathNodeName.substring(1);
+            },
+            querySource: lazyer((path) => {
+                return get(source, path);
+            })
+        });
+
     let parse = astTransfer.parser({
         grammer,
         lr1table,
         annotations,
-        annotationContext: Object.assign({}, utilAnnorationContext, jsonStyleAnnotationContext, {
-            lookupVariable: (name) => {
-                // TODO check variable type
-                if (!variableMap.hasOwnProperty(name)) {
-                    throw new Error(`missing variable ${name} in variableMap ${JSON.stringify(Object.keys(variableMap))}`);
-                }
-
-                return variableMap[name];
-            },
-
-            applyFun: lazyer((fun, args) => {
-                return fun.apply(undefined, args);
-            }),
-
-            xmlNode: lazyer((xmlClass, props, children, closexmlClass) => {
-                if (xmlClass !== closexmlClass) {
-                    throw new Error(`xml tag does not close correctly. start tag is ${xmlClass}, close tag is ${closexmlClass}`);
-                }
-
-                // TODO check close tag
-                return createNode(xmlClass, props, children);
-            }),
-            parseXmlCharTextWithInnerBracket: (text) => {
-                return text.substring(1, text.length - 2).trim();
-            }
-        }),
+        annotationContext,
         tokenTypes,
         processTokens: (tokens) => {
             let ret = [];

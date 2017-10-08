@@ -6,6 +6,14 @@ EXPRESSION := FUN_EXPRESSION    @id($1)
     | DATA                      @id($1)
     | XML_EXPRESSION            @id($1)
     | variableName              @id(lookupVariable($1))
+    | PATH                      @querySource($1)
+
+# path based query
+PATH := PATH_NODE          @array($1)
+    | PATH_NODE PATH       @appendTo($1, $2)
+
+PATH_NODE := pathNodeName      @pathNode($1)
+    | . [ variableName ]       @lookupVariable($3)
 
 # XML class
 XML_EXPRESSION := < variableName XML_ATTR_OBJECT />                                   @xmlNode($2, $3, array(), $2)
