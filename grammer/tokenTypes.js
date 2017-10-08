@@ -1,60 +1,23 @@
 'use strict';
 
 let {
-    stringGraph,
-    numberGraph
-} = require('cl-fsm/apply/json');
-
+    jsonStringExpStr,
+    jsonNumberExpStr,
+} = require('cl-fsm/lib/commonTokenReg');
 let {
     buildFSM
 } = require('stream-token-parser');
 
-let FSM = require('cl-fsm');
-let {
-    stateGraphDSL
-} = FSM;
-
-let {
-    g,
-    c,
-    union,
-    sequence,
-    range,
-    circle
-} = stateGraphDSL;
-
-let whitespace = union(' ', '\f', '\n', '\r', '\t', '\v', '\u00a0', '\u1680', '\u180e', '\u2000-', '\u200a', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000', '\ufeff');
-
+let whitespace = '[\\f\\n\\r\\t\\v ][\\f\\n\\r\\t\\v ]*';
 // .abcbf
 // .0
 // ._
-let nodeName = g(sequence(
-    '.',
-    union('_', '%', range('a', 'z'), range('A', 'Z'), range('0', '9')),
-    circle(union('_', '%', range('a', 'z'), range('A', 'Z'), range('0', '9')))
-));
+let nodeName = '\\.[\\_\\%a-zA-Z0-9][\\_\\%a-zA-Z0-9]*';
+let variableName = '[\\_a-zA-Z][\\_a-zA-Z0-9]*'; //_abc, abc, ej89
 
-let variableName = g(sequence(
-    union('_', range('a', 'z'), range('A', 'Z')),
-    circle(union('_', range('a', 'z'), range('A', 'Z'), range('0', '9')))
-));
-
-let nodeNameVariable = g(sequence(
-    '.',
-    '[',
-
-    circle(whitespace, g(sequence(
-        union('_', range('a', 'z'), range('A', 'Z')),
-
-        circle(union('_', range('a', 'z'), range('A', 'Z'), range('0', '9')),
-            circle(whitespace,
-                g(c(']'))
-            ),
-        ))))
-));
+let xmlCharTextWithInnerBracket = '\\>[\\f\\n\\r\\t\\v ]*^[\\{\\<\\>\\}]^[\\<\\>]*^[\\}\\{\\<\\>]?[\\f\\n\\r\\t\\v ]*\\</';
 
 module.exports = [
-
     {
         priority: 1,
         match: 'true',
@@ -69,23 +32,23 @@ module.exports = [
         name: 'null'
     }, {
         priority: 1,
-        match: buildFSM(stringGraph),
+        match: buildFSM(jsonStringExpStr),
         name: 'string'
     }, {
         priority: 1,
-        match: buildFSM(numberGraph),
+        match: buildFSM(jsonNumberExpStr),
         name: 'number'
+    },
+    {
+        priority: 1,
+        match: buildFSM(xmlCharTextWithInnerBracket),
+        name: 'xmlCharTextWithInnerBracket'
     },
 
     {
         priority: 1,
         match: buildFSM(nodeName),
         name: 'nodeName'
-    },
-    {
-        priority: 1,
-        match: buildFSM(nodeNameVariable),
-        name: 'nodeNameVariable'
     },
     {
         priority: 1,
@@ -128,9 +91,21 @@ module.exports = [
     },
     {
         priority: 1,
+        match: '</',
+        name: '</'
+    },
+    {
+        priority: 1,
+        match: '/>',
+        name: '/>'
+    },
+
+    {
+        priority: 1,
         match: '>',
         name: '>'
     },
+
     {
         priority: 1,
         match: '[',
@@ -154,26 +129,12 @@ module.exports = [
 
     {
         priority: 1,
-        match: '</',
-        name: '</'
-    },
-
-    {
-        priority: 1,
-        match: '/>',
-        name: '/>'
-    },
-
-    {
-        priority: 1,
         match: ',',
         name: ','
     },
     {
         priority: 1,
-        match: buildFSM(g(
-            c(whitespace)
-        )),
+        match: buildFSM(whitespace),
         name: 'whitespace'
     }
 ];

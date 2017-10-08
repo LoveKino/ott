@@ -1,24 +1,30 @@
-# be careful: space between symbols
+# be careful: space between symbols!
 
 PROGRAM := EXPRESSION    @id($1)
 
 EXPRESSION := FUN_EXPRESSION    @id($1)
-    | DATA    @id($1)
-    | XML_EXPRESSION
+    | DATA                      @id($1)
+    | XML_EXPRESSION            @id($1)
     | variableName              @id(lookupVariable($1))
 
 # XML class
-XML_EXPRESSION := < variableName XML_ATTRS />
-     | < variableName XML_ATTRS > XML_EXPRESSION_LIST </ variableName >
+XML_EXPRESSION := < variableName XML_ATTR_OBJECT />                                   @xmlNode($2, $3, array(), $2)
+       | < variableName XML_ATTR_OBJECT xmlCharTextWithInnerBracket variableName >    @xmlNode($2, $3, array(parseXmlCharTextWithInnerBracket($4)), $5)
+       | < variableName XML_ATTR_OBJECT > { EXPRESSION } </ variableName >       @xmlNode($2, $3, array($6), $9)
+       | < variableName XML_ATTR_OBJECT > XML_EXPRESSION_LIST </ variableName >       @xmlNode($2, $3, $5, $7)
 
-XML_EXPRESSION_LIST := EPSILON
-     | XML_EXPRESSION
-     | XML_EXPRESSION XML_EXPRESSION_LIST
+XML_EXPRESSION_LIST := EPSILON                  @array()
+     | XML_EXPRESSION                           @array($1)
+     | XML_EXPRESSION XML_EXPRESSION_LIST       @appendTo($1, $2)
 
-XML_ATTRS := EPSILON
-     |  XML_ATTR
-     |  XML_ATTR XML_ATTRS
-XML_ATTR := variableName assign EXPRESSION
+XML_ATTR_OBJECT := XML_ATTRS    @object($1)
+
+XML_ATTRS := EPSILON          @array()
+     |  XML_ATTR              @array($1)
+     |  XML_ATTR XML_ATTRS    @appendTo($1, $2)
+XML_ATTR := XML_ATTR_NAME assign EXPRESSION    @array($1, $3)
+XML_ATTR_NAME := variableName    @id($1)
+    | string                    @string($1)
 
 # fun-style
 FUN_EXPRESSION := FUN_NAME ( EXP_COMMA_LIST )    @applyFun($1, $3)

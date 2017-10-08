@@ -7,7 +7,12 @@ let assert = require('assert');
 
 let quickTest = (text, expect, options) => {
     let real = compile(text, options);
-    assert.deepEqual(real, expect);
+    try {
+        assert.deepEqual(real, expect);
+    } catch (err) {
+        console.log(JSON.stringify(real, null, 4));
+        throw err;
+    }
 };
 
 describe('index', () => {
@@ -60,7 +65,6 @@ describe('index', () => {
             }
         });
 
-
         quickTest('add(1, subtraction(4, 7))', -2, {
             variableMap: {
                 add: (v1, v2) => v1 + v2,
@@ -82,6 +86,117 @@ describe('index', () => {
                     return array.map(handler);
                 },
                 succ: (v) => ++v
+            }
+        });
+    });
+
+    let createNode = (tagName, props, children) => {
+        return {
+            tagName,
+            props,
+            children
+        };
+    };
+
+    it('xml tag', () => {
+        quickTest('<div></div>', {
+            tagName: 'div',
+            props: {},
+            children: []
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
+        quickTest('<div>abcd</div>', {
+            tagName: 'div',
+            props: {},
+            children: ['abcd']
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
+        quickTest('<div><span>abc</span><p>123</p></div>', {
+            "tagName": "div",
+            "props": {},
+            "children": [
+
+                {
+                    "tagName": "span",
+                    "props": {},
+                    "children": [
+                        "abc"
+                    ]
+                },
+                {
+                    "tagName": "p",
+                    "props": {},
+                    "children": [
+                        "123"
+                    ]
+                }
+            ]
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+    });
+
+    it('xml {EXPRESSION}', () => {
+        quickTest('<div>{1}</div>', {
+            "tagName": "div",
+            "props": {},
+            "children": [1]
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
+        quickTest('<div>{add(2, 3)}</div>', {
+            "tagName": "div",
+            "props": {},
+            "children": [5]
+        }, {
+            variableMap: {
+                add: (v1, v2) => v1 + v2
+            },
+            xmlMap: {
+                createNode
+            }
+        });
+    });
+
+    it('xml attr', () => {
+        quickTest('<div id=2 "class"="common on!">gogogo!</div>', {
+            "tagName": "div",
+            "props": {
+                id: 2,
+                class: 'common on!'
+            },
+            "children": ['gogogo!']
+        }, {
+            xmlMap: {
+                createNode
+            }
+        });
+
+        quickTest('<div id=uuid()>gogogo!</div>', {
+            "tagName": "div",
+            "props": {
+                id: '00009999'
+            },
+            "children": ['gogogo!']
+        }, {
+            variableMap: {
+                uuid: () => '00009999'
+            },
+            xmlMap: {
+                createNode
             }
         });
     });

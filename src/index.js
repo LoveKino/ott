@@ -55,8 +55,20 @@ const utilAnnorationContext = {
     appendTo: lazyer((v, list) => [v].concat(list))
 };
 
+
+const defCreateNode = (tagName, props, children) => {
+    return {
+        tagName,
+        props,
+        children
+    };
+};
+
 let parser = ({
-    variableMap = {}
+    variableMap = {},
+    xmlMap: {
+        createNode = defCreateNode
+    } = {}
 } = {}) => {
     let parse = astTransfer.parser({
         grammer,
@@ -74,7 +86,19 @@ let parser = ({
 
             applyFun: lazyer((fun, args) => {
                 return fun.apply(undefined, args);
-            })
+            }),
+
+            xmlNode: lazyer((xmlClass, props, children, closexmlClass) => {
+                if (xmlClass !== closexmlClass) {
+                    throw new Error(`xml tag does not close correctly. start tag is ${xmlClass}, close tag is ${closexmlClass}`);
+                }
+
+                // TODO check close tag
+                return createNode(xmlClass, props, children);
+            }),
+            parseXmlCharTextWithInnerBracket: (text) => {
+                return text.substring(1, text.length - 2).trim();
+            }
         }),
         tokenTypes,
         processTokens: (tokens) => {
