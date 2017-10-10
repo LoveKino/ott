@@ -1,19 +1,9 @@
 'use strict';
 
 let {
-    compile
-} = require('..');
-let assert = require('assert');
-
-let quickTest = (text, expect, options) => {
-    let real = compile(text, options);
-    try {
-        assert.deepEqual(real, expect);
-    } catch (err) {
-        console.log(JSON.stringify(real, null, 4));
-        throw err;
-    }
-};
+    quickTest,
+    createNode
+} = require('./util');
 
 describe('index', () => {
     it('base', () => {
@@ -89,14 +79,6 @@ describe('index', () => {
             }
         });
     });
-
-    let createNode = (tagName, props, children) => {
-        return {
-            tagName,
-            props,
-            children
-        };
-    };
 
     it('xml tag', () => {
         quickTest('<div/>', {

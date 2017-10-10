@@ -6,7 +6,7 @@ EXPRESSION := FUN_EXPRESSION    @id($1)
     | DATA                      @id($1)
     | XML_EXPRESSION            @id($1)
     | variableName              @id(lookupVariable($1))
-    | PATH                      @querySource($1)
+    | PATH                      @querySource(sourcePath($1))
 
 # path based query
 PATH := PATH_NODE          @array($1)
