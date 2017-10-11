@@ -89,12 +89,14 @@ module.exports = (plain, {
     let updateSource = (path, v) => {
         // update source object
         set(source, path, v);
+
         // update value tree
 
         let result = programValue;
-        let codenodes = sourcePathMap.find(path);
-        for (let i = 0, n = codenodes.length; i < n; i++) {
-            result = valueTree.updateValue(codenodes[i], v, runtimeCtx);
+
+        let codeNodes = sourcePathMap.find(path);
+        for (let codeId in codeNodes) {
+            result = valueTree.updateValue(codeNodes[codeId], v, runtimeCtx);
         }
 
         return result;
