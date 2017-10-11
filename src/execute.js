@@ -5,6 +5,7 @@ const utilStyle = require('./annotationContext/tool/runtime');
 const funStyle = require('./annotationContext/fun/runtime');
 const varStyler = require('./annotationContext/var/runtimer');
 const xmlStyle = require('./annotationContext/xml/runtimer');
+const composeStyle = require('./annotationContext/compose/runtime');
 const ValueTree = require('./valueTree');
 const SourcePathMap = require('./sourcePathMap');
 
@@ -52,6 +53,7 @@ module.exports = (plain, {
         utilStyle,
         jsonStyle,
         funStyle,
+        composeStyle,
         varStyler(variableMap),
         xmlStyle(xmlMap),
 

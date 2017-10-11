@@ -7,6 +7,11 @@ EXPRESSION := FUN_EXPRESSION    @id($1)
     | XML_EXPRESSION            @id($1)
     | variableName              @id(lookupVariable($1))
     | PATH                      @querySource(sourcePath($1))
+    | CONDITION_EXPRESSION      @id($1)
+
+# compose expression
+
+CONDITION_EXPRESSION := EXPRESSION ? EXPRESSION colon EXPRESSION    @condition($1, $3, $5)
 
 # path based query
 PATH := PATH_NODE          @array($1)

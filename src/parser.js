@@ -17,6 +17,7 @@ const utilStyle = require('./annotationContext/tool/stub');
 const funStyle = require('./annotationContext/fun/stub');
 const varStyler = require('./annotationContext/var/stub');
 const xmlStyle = require('./annotationContext/xml/stub');
+const composeStyle = require('./annotationContext/compose/stub');
 const {
     ignore
 } = require('./tokenProcess');
@@ -37,6 +38,7 @@ let parser = () => {
         funStyle,
         varStyler,
         xmlStyle,
+        composeStyle,
 
         {
             pathNode: (pathNodeName) => {

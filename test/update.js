@@ -33,4 +33,28 @@ describe('update', () => {
             ]
         ]);
     });
+
+    it('path update in json', () => {
+        testUpdate('{a: 1, b: .p.a}', {
+            source: {
+                p: {
+                    a: 10
+                }
+            }
+        }, [
+            [
+                ['p', 'a'], -5, {
+                    a: 1,
+                    b: -5
+                }
+            ],
+
+            [
+                ['p', 'a'], 56, {
+                    a: 1,
+                    b: 56
+                }
+            ]
+        ]);
+    });
 });
