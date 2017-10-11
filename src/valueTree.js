@@ -10,24 +10,33 @@ let {
 
 let ValueNode = function(codeNode) {
     this.codeNode = codeNode;
-    this.children = [];
-    this.resolved = false;
     this.id = codeNode.id;
+
+    this.children = [];
+
+    this.valueMap = {};
+    this.runtimeCtxMap = {};
+};
+
+ValueNode.prototype.setValue = function(runtimeCtx, value) {
+    this.valueMap[runtimeCtx.id] = value;
+    this.runtimeCtxMap[runtimeCtx.id] = runtimeCtx;
 };
 
 ValueNode.prototype.getValue = function(runtimeCtx) {
-    if (this.resolved) return this.value;
-    this.setValue(this.codeNode.getValue());
-    return this.value;
+    if (!this.hasCacheValue(runtimeCtx)) {
+        this.setValue(runtimeCtx, this.codeNode.getValue(runtimeCtx));
+    }
+
+    return this.valueMap[runtimeCtx.id];
+};
+
+ValueNode.prototype.hasCacheValue = function(runtimeCtx) {
+    return this.valueMap.hasOwnProperty(runtimeCtx.id);
 };
 
 ValueNode.prototype.reValue = function(runtimeCtx) {
-    this.setValue(this.codeNode.execute(runtimeCtx));
-};
-
-ValueNode.prototype.setValue = function(value) {
-    this.resolved = true;
-    this.value = value;
+    this.setValue(runtimeCtx, this.codeNode.execute(runtimeCtx));
 };
 
 ValueNode.prototype.addChild = function(child) {
@@ -47,7 +56,7 @@ ValueNode.prototype.bubbleChange = function(runtimeCtx) {
         return this.parent.bubbleChange(runtimeCtx);
     }
 
-    return this.value;
+    return this.getValue(runtimeCtx);
 };
 
 module.exports = (root) => {
@@ -71,22 +80,33 @@ module.exports = (root) => {
     let valueRoot = buildValueTree(root);
 
     return {
-        setValue: (codeNode, value) => {
-            valueNodeMap[codeNode.id].setValue(value);
+        setValue: (codeNode, runtimeCtx, value) => {
+            valueNodeMap[codeNode.id].setValue(runtimeCtx, value);
         },
 
-        hasCacheValue: (codeNode) => {
-            return !!valueNodeMap[codeNode.id].resolved;
+        hasCacheValue: (codeNode, runtimeCtx) => {
+            return valueNodeMap[codeNode.id].hasCacheValue(runtimeCtx);
         },
 
-        getCacheValue: (codeNode) => {
-            return valueNodeMap[codeNode.id].value;
+        getCacheValue: (codeNode, runtimeCtx) => {
+            return valueNodeMap[codeNode.id].getValue(runtimeCtx);
         },
 
-        updateValue: (codeNode, newValue, runtimeCtx) => {
+        updateValue: (codeNode, newValue) => {
             let valueNode = valueNodeMap[codeNode.id];
-            valueNode.setValue(newValue);
-            return valueNode.bubbleChange(runtimeCtx);
+
+            let result = {
+                updated: false
+            };
+
+            for (let ctxId in valueNode.valueMap) {
+                let runtimeCtx = valueNode.runtimeCtxMap[ctxId];
+                valueNode.setValue(runtimeCtx, newValue)
+                result.value = valueNode.bubbleChange(runtimeCtx);
+                result.updated = true;
+            }
+
+            return result;
         }
     };
 };

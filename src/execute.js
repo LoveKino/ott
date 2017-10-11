@@ -2,12 +2,12 @@
 
 const jsonStyle = require('./annotationContext/json/runtime');
 const utilStyle = require('./annotationContext/tool/runtime');
-const funStyle = require('./annotationContext/fun/runtime');
-const varStyler = require('./annotationContext/var/runtimer');
 const xmlStyle = require('./annotationContext/xml/runtimer');
-const composeStyle = require('./annotationContext/compose/runtime');
 const ValueTree = require('./valueTree');
 const SourcePathMap = require('./sourcePathMap');
+const {
+    RuntimeContext
+} = require('./runtimeContext');
 
 const {
     fromPlain,
@@ -52,9 +52,6 @@ module.exports = (plain, {
     let annotationContext = Object.assign({},
         utilStyle,
         jsonStyle,
-        funStyle,
-        composeStyle,
-        varStyler(variableMap),
         xmlStyle(xmlMap),
 
         {
@@ -72,10 +69,10 @@ module.exports = (plain, {
     let sourcePathMap = SourcePathMap();
 
     let curPath = null;
-    let runtimeCtx = {
-        callingStack: [],
-        onAfterEvalCode: (codeNode, value) => {
-            valueTree.setValue(codeNode, value);
+    let runtimeOptions = {
+        onAfterEvalCode: (codeNode, value, runtimeCtx) => {
+            valueTree.setValue(codeNode, runtimeCtx, value);
+
             if (codeNode.type === 'sourcePath') { // find a source path expression
                 curPath = value;
             } else if (codeNode.type === 'querySource') { // find a source path expression
@@ -86,22 +83,27 @@ module.exports = (plain, {
         getCacheValue: valueTree.getCacheValue
     };
 
-    let programValue = getValue(runtimeCtx, programCode, []);
+    let programValue = getValue(new RuntimeContext(variableMap, null, runtimeOptions), programCode, []);
 
     let updateSource = (path, v) => {
         // update source object
         set(source, path, v);
 
         // update value tree
-
-        let result = programValue;
-
         let codeNodes = sourcePathMap.find(path);
         for (let codeId in codeNodes) {
-            result = valueTree.updateValue(codeNodes[codeId], v, runtimeCtx);
+            // TODO runtimeCtx
+            let {
+                updated,
+                value
+            } = valueTree.updateValue(codeNodes[codeId], v, new RuntimeContext(variableMap, null, runtimeOptions));
+
+            if (updated) {
+                programValue = value;
+            }
         }
 
-        return result;
+        return programValue;
     };
 
     return {

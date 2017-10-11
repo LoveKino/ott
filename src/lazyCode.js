@@ -16,22 +16,22 @@ let LazyCode = function(args, fn, type) {
 };
 
 LazyCode.prototype.getValue = function(runtimeCtx) {
-    if (runtimeCtx.hasCacheValue && runtimeCtx.hasCacheValue(this)) {
-        return runtimeCtx.getCacheValue(this);
+    if (runtimeCtx.hasCacheValue && runtimeCtx.hasCacheValue(this, runtimeCtx)) {
+        return runtimeCtx.getCacheValue(this, runtimeCtx);
     }
 
     return this.execute(runtimeCtx);
 };
 
 LazyCode.prototype.execute = function(runtimeCtx) {
-    runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this);
+    runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this, runtimeCtx);
 
     // run code
     runtimeCtx.callingStack.push(this);
     let value = this.fn(runtimeCtx, this.args);
     runtimeCtx.callingStack.pop();
 
-    runtimeCtx.onAfterEvalCode && runtimeCtx.onAfterEvalCode(this, value);
+    runtimeCtx.onAfterEvalCode && runtimeCtx.onAfterEvalCode(this, value, runtimeCtx);
     return value;
 };
 

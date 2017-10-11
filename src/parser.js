@@ -14,10 +14,7 @@ const {
 
 const jsonStyle = require('./annotationContext/json/stub');
 const utilStyle = require('./annotationContext/tool/stub');
-const funStyle = require('./annotationContext/fun/stub');
-const varStyler = require('./annotationContext/var/stub');
 const xmlStyle = require('./annotationContext/xml/stub');
-const composeStyle = require('./annotationContext/compose/stub');
 const {
     ignore
 } = require('./tokenProcess');
@@ -35,10 +32,7 @@ let parser = () => {
     let annotationContext = Object.assign({},
         utilStyle,
         jsonStyle,
-        funStyle,
-        varStyler,
         xmlStyle,
-        composeStyle,
 
         {
             pathNode: (pathNodeName) => {

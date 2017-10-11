@@ -8,10 +8,19 @@ EXPRESSION := FUN_EXPRESSION    @id($1)
     | variableName              @id(lookupVariable($1))
     | PATH                      @querySource(sourcePath($1))
     | CONDITION_EXPRESSION      @id($1)
+    | ABSTRACTION_EXPRESSION    @id($1)
 
 # compose expression
 
 CONDITION_EXPRESSION := EXPRESSION ? EXPRESSION colon EXPRESSION    @condition($1, $3, $5)
+
+# abstraction
+
+ABSTRACTION_EXPRESSION := ( PARAM_LIST ) -> EXPRESSION     @abstraction($2, $5)
+
+PARAM_LIST := EPSILON               @array()
+    | variableName                  @array($1)
+    | variableName , PARAM_LIST     @appendTo($1, $3)
 
 # path based query
 PATH := PATH_NODE          @array($1)

@@ -132,6 +132,11 @@ module.exports = [{
         match: '?',
         name: '?'
     },
+    {
+        priority: 1,
+        match: '->',
+        name: '->'
+    },
 
     {
         priority: 1,
