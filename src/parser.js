@@ -19,30 +19,21 @@ const {
     ignore
 } = require('./tokenProcess');
 
-let get = (source, path) => {
-    let cur = source;
-    for (let i = 0, n = path.length; i < n; i++) {
-        let item = path[i];
-        cur = cur[path[i]];
-    }
-    return cur;
-};
+let annotationContext = Object.assign({},
+    utilStyle,
+    jsonStyle,
+    xmlStyle,
 
-let parser = () => {
-    let annotationContext = Object.assign({},
-        utilStyle,
-        jsonStyle,
-        xmlStyle,
+    {
+        pathNode: (pathNodeName) => {
+            return pathNodeName.substring(1);
+        },
+        querySource: lazyStuber('querySource'),
+        sourcePath: lazyStuber('sourcePath')
+    });
 
-        {
-            pathNode: (pathNodeName) => {
-                return pathNodeName.substring(1);
-            },
-            querySource: lazyStuber('querySource'),
-            sourcePath: lazyStuber('sourcePath')
-        });
-
-    let parse = astTransfer.parser({
+const parser = () => {
+    const parse = astTransfer.parser({
         grammer,
         lr1table,
         annotations,
@@ -57,14 +48,14 @@ let parser = () => {
         if (chunk !== null) {
             parse(chunk);
         } else {
-            let stub = parse(null);
-            let plain = toPlain(stub);
+            const stub = parse(null);
+            const plain = toPlain(stub);
             return plain;
         }
     };
 };
 
-let compile = (text, options) => {
+const compile = (text, options) => {
     let parse = parser(options);
     parse(text);
     return parse(null);

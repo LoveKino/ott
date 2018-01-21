@@ -112,22 +112,22 @@ describe('index', () => {
         });
 
         quickTest('<div><span>abc</span><p>123</p></div>', {
-            "tagName": "div",
-            "props": {},
-            "children": [
+            'tagName': 'div',
+            'props': {},
+            'children': [
 
                 {
-                    "tagName": "span",
-                    "props": {},
-                    "children": [
-                        "abc"
+                    'tagName': 'span',
+                    'props': {},
+                    'children': [
+                        'abc'
                     ]
                 },
                 {
-                    "tagName": "p",
-                    "props": {},
-                    "children": [
-                        "123"
+                    'tagName': 'p',
+                    'props': {},
+                    'children': [
+                        '123'
                     ]
                 }
             ]
@@ -140,9 +140,9 @@ describe('index', () => {
 
     it('xml {EXPRESSION}', () => {
         quickTest('<div>{1}</div>', {
-            "tagName": "div",
-            "props": {},
-            "children": [1]
+            'tagName': 'div',
+            'props': {},
+            'children': [1]
         }, {
             xmlMap: {
                 createNode
@@ -150,9 +150,9 @@ describe('index', () => {
         });
 
         quickTest('<div>{add(2, 3)}</div>', {
-            "tagName": "div",
-            "props": {},
-            "children": [5]
+            'tagName': 'div',
+            'props': {},
+            'children': [5]
         }, {
             variableMap: {
                 add: (v1, v2) => v1 + v2
@@ -165,11 +165,11 @@ describe('index', () => {
 
     it('xml attr', () => {
         quickTest('<div id=2/>', {
-            "tagName": "div",
-            "props": {
+            'tagName': 'div',
+            'props': {
                 id: 2
             },
-            "children": []
+            'children': []
         }, {
             xmlMap: {
                 createNode
@@ -177,12 +177,12 @@ describe('index', () => {
         });
 
         quickTest('<div id=2 "class"="common on!">gogogo!</div>', {
-            "tagName": "div",
-            "props": {
+            'tagName': 'div',
+            'props': {
                 id: 2,
                 class: 'common on!'
             },
-            "children": ['gogogo!']
+            'children': ['gogogo!']
         }, {
             xmlMap: {
                 createNode
@@ -190,11 +190,11 @@ describe('index', () => {
         });
 
         quickTest('<div id=uuid()>gogogo!</div>', {
-            "tagName": "div",
-            "props": {
+            'tagName': 'div',
+            'props': {
                 id: '00009999'
             },
-            "children": ['gogogo!']
+            'children': ['gogogo!']
         }, {
             variableMap: {
                 uuid: () => '00009999'

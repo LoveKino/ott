@@ -77,7 +77,7 @@ module.exports = (root) => {
         return rootValueNode;
     };
 
-    let valueRoot = buildValueTree(root);
+    buildValueTree(root);
 
     return {
         setValue: (codeNode, runtimeCtx, value) => {
@@ -101,7 +101,7 @@ module.exports = (root) => {
 
             for (let ctxId in valueNode.valueMap) {
                 let runtimeCtx = valueNode.runtimeCtxMap[ctxId];
-                valueNode.setValue(runtimeCtx, newValue)
+                valueNode.setValue(runtimeCtx, newValue);
                 result.value = valueNode.bubbleChange(runtimeCtx);
                 result.updated = true;
             }

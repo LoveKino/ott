@@ -18,7 +18,6 @@ const {
 let get = (source, path) => {
     let cur = source;
     for (let i = 0, n = path.length; i < n; i++) {
-        let item = path[i];
         cur = cur[path[i]];
     }
     return cur;
@@ -62,7 +61,6 @@ module.exports = (plain, {
             sourcePath: lazyer((ctx, [v]) => getValue(ctx, v), 'sourcePath')
         });
 
-    // TODO update XML Node and json node partial
     let programCode = fromPlain(plain, annotationContext);
 
     let valueTree = ValueTree(programCode);

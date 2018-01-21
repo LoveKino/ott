@@ -17,7 +17,7 @@ module.exports = ({
     createNode = defCreateNode
 } = {}) => {
     return {
-        xmlNode: lazyer((ctx, [xmlClass, props, children, closexmlClass]) => {
+        xmlNode: lazyer((ctx, [xmlClass, props, children]) => {
             props = getValue(ctx, props);
             children = getValue(ctx, children);
             return createNode(xmlClass, props, children);

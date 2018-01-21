@@ -1,7 +1,6 @@
 'use strict';
 
-let {
-    createNode,
+const {
     testUpdate
 } = require('./util');
 

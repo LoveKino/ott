@@ -14,7 +14,9 @@ let variableName = '[\\_a-zA-Z][\\_a-zA-Z0-9]*'; //_abc, abc, ej89
 
 let xmlCharTextWithInnerBracket = '\\>[\\f\\n\\r\\t\\v ]*^[\\{\\<\\>\\}]^[\\<\\>]*^[\\}\\{\\<\\>]?[\\f\\n\\r\\t\\v ]*\\</';
 
-module.exports = [{
+module.exports = [
+
+    {
         priority: 1,
         match: 'true',
         name: 'true'

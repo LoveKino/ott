@@ -1,10 +1,10 @@
 'use strict';
 
-let {
+const {
     parser,
     compile
 } = require('./parser');
-let execute = require('./execute');
+const execute = require('./execute');
 
 module.exports = {
     parser,

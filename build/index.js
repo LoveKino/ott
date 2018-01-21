@@ -5,7 +5,6 @@ let {
 } = require('ast-transfer');
 let fs = require('fs');
 let promisify = require('es6-promisify');
-let bnfer = require('bnfer');
 let path = require('path');
 
 let readFile = promisify(fs.readFile);

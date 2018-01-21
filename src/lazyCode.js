@@ -2,6 +2,8 @@
 
 let _code_node_id_count = 0;
 
+let prefix = 'code_node-';
+
 /**
  * Normally, when reduce a production, will new a LazyCode object
  *
@@ -12,7 +14,7 @@ let LazyCode = function(args, fn, type) {
     this.fn = fn;
     this.type = type;
 
-    this.id = 'code_node-' + _code_node_id_count++;
+    this.id = prefix + _code_node_id_count++;
 };
 
 LazyCode.prototype.getValue = function(runtimeCtx) {

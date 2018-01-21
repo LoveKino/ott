@@ -46,7 +46,7 @@ Node.prototype.assembleCodeNodes = function() {
     for (let name in this.children) {
         let ret = this.children[name].assembleCodeNodes();
         for (let id in ret) {
-            codeNode[id] = ret[id];
+            codeNodes[id] = ret[id];
         }
     }
 
@@ -63,7 +63,9 @@ module.exports = () => {
 
         find: (path) => {
             let node = root.findDescendant(path);
-            return node.assembleCodeNodes();
+            if (node) {
+                return node.assembleCodeNodes();
+            }
         }
     };
 };

@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "cl-fsm": "0.0.3",
+    "docway": "0.0.3",
     "es6-promisify": "^5.0.0",
     "mocha": "^4.0.0"
   }
