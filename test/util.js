@@ -3,6 +3,7 @@ let {
     execute
 } = require('..');
 let assert = require('assert');
+const log = console.log; // eslint-disable-line
 
 let quickTest = (text, expect, options) => {
     let plain = compile(text);
@@ -10,7 +11,7 @@ let quickTest = (text, expect, options) => {
     try {
         assert.deepEqual(real, expect);
     } catch (err) {
-        console.log(JSON.stringify(real, null, 4));
+        log(JSON.stringify(real, null, 4));
         throw err;
     }
 };
