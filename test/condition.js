@@ -1,14 +1,13 @@
 'use strict';
 
-let {
+const {
     quickTest,
-    createNode,
     testUpdate
 } = require('./util');
 
 describe('condition', () => {
     it('base', () => {
-        quickTest('1 ? "A" : "B"', "A");
+        quickTest('1 ? "A" : "B"', 'A');
     });
 
     it('lazy', () => {
@@ -17,6 +16,7 @@ describe('condition', () => {
                 'mul': (v1, v2) => v1 * v2,
                 'div': (v1, v2) => v1 / v2
             },
+
             source: {
                 flag: true,
                 v1: 0,

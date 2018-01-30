@@ -46,7 +46,8 @@ let set = (sandbox, parts, value) => {
 module.exports = (plain, {
     source = {},
     variableMap = {},
-    xmlMap
+    xmlMap,
+    onUpdate
 } = {}) => {
     let annotationContext = Object.assign({},
         utilStyle,
@@ -83,18 +84,26 @@ module.exports = (plain, {
 
     let programValue = getValue(new RuntimeContext(variableMap, null, runtimeOptions), programCode, []);
 
+    // TODO check reasonable path
     let updateSource = (path, v) => {
         // update source object
         set(source, path, v);
 
         // update value tree
-        let codeNodes = sourcePathMap.find(path);
+        const codeNodes = sourcePathMap.find(path);
+
         for (let codeId in codeNodes) {
             // TODO runtimeCtx
+            const {
+                codeNode,
+                sourcePath
+            } = codeNodes[codeId];
             let {
                 updated,
                 value
-            } = valueTree.updateValue(codeNodes[codeId], v, new RuntimeContext(variableMap, null, runtimeOptions));
+            } = valueTree.updateValue(codeNode, get(source, sourcePath), {
+                onUpdate
+            });
 
             if (updated) {
                 programValue = value;

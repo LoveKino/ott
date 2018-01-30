@@ -18,6 +18,7 @@ let LazyCode = function(args, fn, type) {
 };
 
 LazyCode.prototype.getValue = function(runtimeCtx) {
+    // check cache first
     if (runtimeCtx.hasCacheValue && runtimeCtx.hasCacheValue(this, runtimeCtx)) {
         return runtimeCtx.getCacheValue(this, runtimeCtx);
     }
@@ -25,6 +26,11 @@ LazyCode.prototype.getValue = function(runtimeCtx) {
     return this.execute(runtimeCtx);
 };
 
+
+/**
+ * calculate code in a specific context
+ * @param runtimeCtx object runtime context object
+ */
 LazyCode.prototype.execute = function(runtimeCtx) {
     runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this, runtimeCtx);
 

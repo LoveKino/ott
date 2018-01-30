@@ -35,6 +35,9 @@ ValueNode.prototype.hasCacheValue = function(runtimeCtx) {
     return this.valueMap.hasOwnProperty(runtimeCtx.id);
 };
 
+/**
+ * re-calculate value for value node.
+ */
 ValueNode.prototype.reValue = function(runtimeCtx) {
     this.setValue(runtimeCtx, this.codeNode.execute(runtimeCtx));
 };
@@ -47,6 +50,7 @@ ValueNode.prototype.addChild = function(child) {
 };
 
 /**
+ *  After update current node's value, bubble change event to parent node and re-evaluate node.
  *  valueNode bubble a change, it will influence of it's parent's value
  *  and cycle to root value
  */
@@ -92,7 +96,9 @@ module.exports = (root) => {
             return valueNodeMap[codeNode.id].getValue(runtimeCtx);
         },
 
-        updateValue: (codeNode, newValue) => {
+        updateValue: (codeNode, newValue, {
+            onUpdate
+        }) => {
             let valueNode = valueNodeMap[codeNode.id];
 
             let result = {
@@ -101,7 +107,9 @@ module.exports = (root) => {
 
             for (let ctxId in valueNode.valueMap) {
                 let runtimeCtx = valueNode.runtimeCtxMap[ctxId];
+                // set current value for valueNode
                 valueNode.setValue(runtimeCtx, newValue);
+                // bubble changes
                 result.value = valueNode.bubbleChange(runtimeCtx);
                 result.updated = true;
             }
