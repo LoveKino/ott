@@ -1,6 +1,6 @@
 'use strict';
 
-let {
+const {
     LazyCode
 } = require('./lazyCode');
 
@@ -8,13 +8,13 @@ let {
  * Store the solving process
  */
 
-let ValueNode = function(codeNode) {
+const ValueNode = function(codeNode) {
     this.codeNode = codeNode;
     this.id = codeNode.id;
 
     this.children = [];
 
-    this.valueMap = {};
+    this.valueMap = {}; // associate different context with current code node
     this.runtimeCtxMap = {};
 };
 
@@ -38,8 +38,10 @@ ValueNode.prototype.hasCacheValue = function(runtimeCtx) {
 /**
  * re-calculate value for value node.
  */
-ValueNode.prototype.reValue = function(runtimeCtx) {
-    this.setValue(runtimeCtx, this.codeNode.execute(runtimeCtx));
+ValueNode.prototype.reValue = function(runtimeCtx, e) {
+    e.currentValue = this.valueMap[runtimeCtx.id];
+    e.current = this;
+    this.setValue(runtimeCtx, this.codeNode.execute(runtimeCtx, true, e));
 };
 
 ValueNode.prototype.addChild = function(child) {
@@ -54,10 +56,11 @@ ValueNode.prototype.addChild = function(child) {
  *  valueNode bubble a change, it will influence of it's parent's value
  *  and cycle to root value
  */
-ValueNode.prototype.bubbleChange = function(runtimeCtx) {
-    if (this.parent) {
-        this.parent.reValue(runtimeCtx);
-        return this.parent.bubbleChange(runtimeCtx);
+ValueNode.prototype.bubbleChange = function(runtimeCtx, e) {
+    const node = this.parent;
+    if (node) {
+        node.reValue(runtimeCtx, e);
+        return node.bubbleChange(runtimeCtx, e);
     }
 
     return this.getValue(runtimeCtx);
@@ -96,9 +99,7 @@ module.exports = (root) => {
             return valueNodeMap[codeNode.id].getValue(runtimeCtx);
         },
 
-        updateValue: (codeNode, newValue, {
-            onUpdate
-        }) => {
+        updateValue: (codeNode, newValue) => {
             let valueNode = valueNodeMap[codeNode.id];
 
             let result = {
@@ -106,11 +107,14 @@ module.exports = (root) => {
             };
 
             for (let ctxId in valueNode.valueMap) {
-                let runtimeCtx = valueNode.runtimeCtxMap[ctxId];
+                const runtimeCtx = valueNode.runtimeCtxMap[ctxId];
                 // set current value for valueNode
                 valueNode.setValue(runtimeCtx, newValue);
+
                 // bubble changes
-                result.value = valueNode.bubbleChange(runtimeCtx);
+                result.value = valueNode.bubbleChange(runtimeCtx, {
+                    source: valueNode
+                });
                 result.updated = true;
             }
 

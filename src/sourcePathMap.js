@@ -40,6 +40,7 @@ Node.prototype.addCodeNode = function(path, codeNode) {
 Node.prototype.findNearestDescendant = function(path) {
     let cur = this;
     let sourcePath = [];
+
     for (let i = 0, n = path.length; i < n; i++) {
         const item = path[i];
         const next = cur.children[item];
@@ -108,6 +109,8 @@ module.exports = () => {
             if (nearest) {
                 return assembleCodeNodes(nearest);
             }
+
+            return null;
         }
     };
 };

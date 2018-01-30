@@ -12,7 +12,8 @@ let whitespace = '[\\f\\n\\r\\t\\v ][\\f\\n\\r\\t\\v ]*';
 let pathNodeName = '\\.[\\_\\%a-zA-Z0-9][\\_\\%a-zA-Z0-9]*';
 let variableName = '[\\_a-zA-Z][\\_a-zA-Z0-9]*'; //_abc, abc, ej89
 
-let xmlCharTextWithInnerBracket = '\\>[\\f\\n\\r\\t\\v ]*^[\\{\\<\\>\\}]^[\\<\\>]*^[\\}\\{\\<\\>]?[\\f\\n\\r\\t\\v ]*\\</';
+let rawXml = '((^[\\{\\<\\>])|(^[\\{\\<\\>]^[\\<\\>]*^[\\}\\<\\>]))';
+let xmlCharTextWithInnerBracket = '\\>[\\f\\n\\r\\t\\v ]*' + rawXml + '[\\f\\n\\r\\t\\v ]*\\</';
 
 module.exports = [
 
@@ -36,11 +37,6 @@ module.exports = [
         priority: 1,
         match: buildFSM(jsonNumberExpStr),
         name: 'number'
-    },
-    {
-        priority: 1,
-        match: buildFSM(xmlCharTextWithInnerBracket),
-        name: 'xmlCharTextWithInnerBracket'
     },
 
     {
@@ -149,5 +145,10 @@ module.exports = [
         priority: 1,
         match: buildFSM(whitespace),
         name: 'whitespace'
+    },
+    {
+        priority: 1,
+        match: buildFSM(xmlCharTextWithInnerBracket),
+        name: 'xmlCharTextWithInnerBracket'
     }
 ];

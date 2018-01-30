@@ -42,4 +42,32 @@ describe('condition', () => {
             ]
         ]);
     });
+
+    it('condition in xml', () => {
+        quickTest('.flag? <span>1</span>: 2', {
+            children: ['1'],
+            tagName: 'span',
+            props: {}
+        }, {
+            source: {
+                flag: true
+            }
+        });
+    });
+
+    it('condition inside xml', () => {
+        quickTest('<p>{.flag? <span>1</span>: 2}</p>', {
+            children: [{
+                tagName: 'span',
+                props: {},
+                children: ['1']
+            }],
+            tagName: 'p',
+            props: {}
+        }, {
+            source: {
+                flag: true
+            }
+        });
+    });
 });

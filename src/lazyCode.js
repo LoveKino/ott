@@ -9,10 +9,11 @@ let prefix = 'code_node-';
  *
  * TODO fast way to indicate ancestor-descendant relationship
  */
-let LazyCode = function(args, fn, type) {
+let LazyCode = function(args, fn, type, updateFn) {
     this.args = args;
     this.fn = fn;
     this.type = type;
+    this.updateFn = updateFn;
 
     this.id = prefix + _code_node_id_count++;
 };
@@ -29,14 +30,22 @@ LazyCode.prototype.getValue = function(runtimeCtx) {
 
 /**
  * calculate code in a specific context
+ * There are two mode to run a piece of code: execute and update.
  * @param runtimeCtx object runtime context object
  */
-LazyCode.prototype.execute = function(runtimeCtx) {
+LazyCode.prototype.execute = function(runtimeCtx, isUpdate, lastValue) {
     runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this, runtimeCtx);
 
     // run code
     runtimeCtx.callingStack.push(this);
-    let value = this.fn(runtimeCtx, this.args);
+
+    let value = null;
+    if (isUpdate && this.updateFn) {
+        value = this.updateFn(runtimeCtx, this.args, lastValue);
+    } else {
+        value = this.fn(runtimeCtx, this.args);
+    }
+
     runtimeCtx.callingStack.pop();
 
     runtimeCtx.onAfterEvalCode && runtimeCtx.onAfterEvalCode(this, value, runtimeCtx);
@@ -73,9 +82,9 @@ let getValue = (runtimeCtx, v) => {
     return v;
 };
 
-let lazyer = (fn, type) => {
+let lazyer = (fn, type, updateFn) => {
     return (...args) => {
-        return new LazyCode(args, fn, type);
+        return new LazyCode(args, fn, type, updateFn);
     };
 };
 

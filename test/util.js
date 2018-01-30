@@ -16,11 +16,14 @@ const quickTest = (text, expect, options) => {
     }
 };
 
-const testUpdate = (text, options, updates) => {
+const testUpdate = (text, options, updates, handle) => {
     let plain = compile(text);
     let {
-        updateSource
+        updateSource,
+        value
     } = execute(JSON.parse(JSON.stringify(plain)), options);
+
+    handle && handle(value);
 
     updates.forEach(([path, value, newExpected]) => {
         let newReal = updateSource(path, value);

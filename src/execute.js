@@ -70,6 +70,7 @@ module.exports = (plain, {
     let curPath = null;
     let runtimeOptions = {
         onAfterEvalCode: (codeNode, value, runtimeCtx) => {
+            // update valueTree with new value
             valueTree.setValue(codeNode, runtimeCtx, value);
 
             if (codeNode.type === 'sourcePath') { // find a source path expression
