@@ -1,16 +1,16 @@
 'use strict';
 
 const {
-    lazyStuber
+  lazyStuber
 } = require('../../lazyStub');
 
 module.exports = {
-    id: v => v,
-    appendTo: lazyStuber('appendTo'),
-    lookupVariable: lazyStuber('lookupVariable'),
-    condition: lazyStuber('condition'),
-    applyFun: lazyStuber('applyFun'),
+  id: v => v,
+  appendTo: lazyStuber('appendTo'),
+  lookupVariable: lazyStuber('lookupVariable'),
+  condition: lazyStuber('condition'),
+  applyFun: lazyStuber('applyFun'),
 
-    // TODO check names
-    abstraction: lazyStuber('abstraction')
+  // TODO check names
+  abstraction: lazyStuber('abstraction')
 };

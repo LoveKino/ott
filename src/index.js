@@ -1,13 +1,13 @@
 'use strict';
 
 const {
-    parser,
-    compile
+  parser,
+  compile
 } = require('./parser');
 const execute = require('./execute');
 
 module.exports = {
-    parser,
-    compile,
-    execute
+  parser,
+  compile,
+  execute
 };

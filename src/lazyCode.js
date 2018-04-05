@@ -10,21 +10,21 @@ let prefix = 'code_node-';
  * TODO fast way to indicate ancestor-descendant relationship
  */
 let LazyCode = function(args, fn, type, updateFn) {
-    this.args = args;
-    this.fn = fn;
-    this.type = type;
-    this.updateFn = updateFn;
+  this.args = args;
+  this.fn = fn;
+  this.type = type;
+  this.updateFn = updateFn;
 
-    this.id = prefix + _code_node_id_count++;
+  this.id = prefix + _code_node_id_count++;
 };
 
 LazyCode.prototype.getValue = function(runtimeCtx) {
-    // check cache first
-    if (runtimeCtx.hasCacheValue && runtimeCtx.hasCacheValue(this, runtimeCtx)) {
-        return runtimeCtx.getCacheValue(this, runtimeCtx);
-    }
+  // check cache first
+  if (runtimeCtx.hasCacheValue && runtimeCtx.hasCacheValue(this, runtimeCtx)) {
+    return runtimeCtx.getCacheValue(this, runtimeCtx);
+  }
 
-    return this.execute(runtimeCtx);
+  return this.execute(runtimeCtx);
 };
 
 
@@ -34,63 +34,63 @@ LazyCode.prototype.getValue = function(runtimeCtx) {
  * @param runtimeCtx object runtime context object
  */
 LazyCode.prototype.execute = function(runtimeCtx, isUpdate, lastValue) {
-    runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this, runtimeCtx);
+  runtimeCtx.onBeforeEvalCode && runtimeCtx.onBeforeEvalCode(this, runtimeCtx);
 
-    // run code
-    runtimeCtx.callingStack.push(this);
+  // run code
+  runtimeCtx.callingStack.push(this);
 
-    let value = null;
-    if (isUpdate && this.updateFn) {
-        value = this.updateFn(runtimeCtx, this.args, lastValue);
-    } else {
-        value = this.fn(runtimeCtx, this.args);
-    }
+  let value = null;
+  if (isUpdate && this.updateFn) {
+    value = this.updateFn(runtimeCtx, this.args, lastValue);
+  } else {
+    value = this.fn(runtimeCtx, this.args);
+  }
 
-    runtimeCtx.callingStack.pop();
+  runtimeCtx.callingStack.pop();
 
-    runtimeCtx.onAfterEvalCode && runtimeCtx.onAfterEvalCode(this, value, runtimeCtx);
-    return value;
+  runtimeCtx.onAfterEvalCode && runtimeCtx.onAfterEvalCode(this, value, runtimeCtx);
+  return value;
 };
 
 let fromPlain = (plainObj, classMap) => {
-    if (plainObj.classType === 'Base') return plainObj.value;
+  if (plainObj.classType === 'Base') return plainObj.value;
 
-    let {
-        type,
-        args
-    } = plainObj;
+  let {
+    type,
+    args
+  } = plainObj;
 
-    let lazyerInst = classMap[type];
+  let lazyerInst = classMap[type];
 
-    if (typeof lazyerInst !== 'function') {
-        throw new Error(`can not found function from type ${type}.`);
-    }
+  if (typeof lazyerInst !== 'function') {
+    throw new Error(`can not found function from type ${type}.`);
+  }
 
-    let params = [];
-    for (let i = 0, n = args.length; i < n; i++) {
-        params[i] = fromPlain(args[i], classMap);
-    }
+  let params = [];
+  for (let i = 0, n = args.length; i < n; i++) {
+    params[i] = fromPlain(args[i], classMap);
+  }
 
-    return lazyerInst(...params);
+  return lazyerInst(...params);
 };
 
 let getValue = (runtimeCtx, v) => {
-    if (v instanceof LazyCode) {
-        // TODO try-catch and display calling stack information
-        return v.getValue(runtimeCtx);
-    }
-    return v;
+  if (v instanceof LazyCode) {
+    // TODO try-catch and display calling stack information
+    return v.getValue(runtimeCtx);
+  }
+  return v;
 };
 
 let lazyer = (fn, type, updateFn) => {
-    return (...args) => {
-        return new LazyCode(args, fn, type, updateFn);
-    };
+  return (...args) => {
+    return new LazyCode(args, fn, type, updateFn);
+  };
 };
 
 module.exports = {
-    getValue,
-    lazyer,
-    fromPlain,
-    LazyCode
+  getValue,
+  lazyer,
+  fromPlain,
+  LazyCode
 };

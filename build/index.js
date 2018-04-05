@@ -1,7 +1,7 @@
 'use strict';
 
 let {
-    buildGrammer
+  buildGrammer
 } = require('ast-transfer');
 let fs = require('fs');
 let promisify = require('es6-promisify');
@@ -14,8 +14,8 @@ const GRAMMER_TXT = path.join(__dirname, '../grammer/grammer.txt');
 const LR1TableJsPath = path.join(__dirname, '../res/grammer.js');
 
 let generateGrammer = async() => {
-    let grammerText = await readFile(GRAMMER_TXT, 'utf-8');
-    await writeFile(LR1TableJsPath, `module.exports=${JSON.stringify(buildGrammer(grammerText))}`, 'utf-8');
+  let grammerText = await readFile(GRAMMER_TXT, 'utf-8');
+  await writeFile(LR1TableJsPath, `module.exports=${JSON.stringify(buildGrammer(grammerText))}`, 'utf-8');
 };
 
 generateGrammer();

@@ -3,6 +3,6 @@
 const path = require('path');
 
 module.exports = {
-    name: 'Quick API Example',
-    samples: []
+  name: 'Quick API Example',
+  samples: []
 };

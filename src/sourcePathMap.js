@@ -6,29 +6,29 @@
  */
 
 const Node = function() {
-    this.children = {};
-    this.codeNodes = {};
+  this.children = {};
+  this.codeNodes = {};
 };
 
 Node.prototype.addChild = function(key, child) {
-    this.children[key] = child;
+  this.children[key] = child;
 };
 
 Node.prototype.addCodeNode = function(path, codeNode) {
-    let cur = this;
+  let cur = this;
 
-    for (let i = 0, n = path.length; i < n; i++) {
-        const item = path[i];
-        if (!cur.children[item]) {
-            const next = new Node();
-            cur.addChild(item, next);
-            cur = next;
-        } else {
-            cur = cur.children[item];
-        }
+  for (let i = 0, n = path.length; i < n; i++) {
+    const item = path[i];
+    if (!cur.children[item]) {
+      const next = new Node();
+      cur.addChild(item, next);
+      cur = next;
+    } else {
+      cur = cur.children[item];
     }
+  }
 
-    cur.codeNodes[codeNode.id] = codeNode;
+  cur.codeNodes[codeNode.id] = codeNode;
 };
 
 /**
@@ -38,79 +38,79 @@ Node.prototype.addCodeNode = function(path, codeNode) {
  * eg2: >list, with update path .list.0
  */
 Node.prototype.findNearestDescendant = function(path) {
-    let cur = this;
-    let sourcePath = [];
+  let cur = this;
+  let sourcePath = [];
 
-    for (let i = 0, n = path.length; i < n; i++) {
-        const item = path[i];
-        const next = cur.children[item];
-        if (!next) {
-            if (i > 0) {
-                return {
-                    node: cur,
-                    sourcePath
-                };
-            } else { // did not match anyone
-                return null;
-            }
-        } else {
-            sourcePath.push(item);
-            cur = next;
-        }
+  for (let i = 0, n = path.length; i < n; i++) {
+    const item = path[i];
+    const next = cur.children[item];
+    if (!next) {
+      if (i > 0) {
+        return {
+          node: cur,
+          sourcePath
+        };
+      } else { // did not match anyone
+        return null;
+      }
+    } else {
+      sourcePath.push(item);
+      cur = next;
     }
-    return {
-        node: cur,
-        sourcePath
-    };
+  }
+  return {
+    node: cur,
+    sourcePath
+  };
 };
 
 const assembleCodeNodes = ({
-    node,
-    sourcePath
+  node,
+  sourcePath
 }) => {
-    // TODO opt
-    let results = {};
-    for (let codeId in node.codeNodes) {
-        results[codeId] = {
-            sourcePath,
-            codeNode: node.codeNodes[codeId]
-        };
-    }
+  // TODO opt
+  let results = {};
+  for (let codeId in node.codeNodes) {
+    results[codeId] = {
+      sourcePath,
+      codeNode: node.codeNodes[codeId]
+    };
+  }
 
-    for (let name in node.children) {
-        const ret = assembleCodeNodes({
-            node: node.children[name],
-            sourcePath: sourcePath.concat([name])
-        });
+  for (let name in node.children) {
+    const ret = assembleCodeNodes({
+      node: node.children[name],
+      sourcePath: sourcePath.concat([name])
+    });
 
-        // merge child result
-        results = Object.assign(results, ret);
-    }
+    // merge child result
+    results = Object.assign(results, ret);
+  }
 
-    return results;
+  return results;
 };
 
 module.exports = () => {
-    let root = new Node();
+  let root = new Node();
 
-    return {
-        /**
+  return {
+    /**
          * add relationship between codeNode and source path
          */
-        add: (codeNode, path) => {
-            root.addCodeNode(path, codeNode);
-        },
+    add: (codeNode, path) => {
+      root.addCodeNode(path, codeNode);
+    },
 
-        /**
+    /**
          * try to find code nodes which need to update.
          */
-        find: (path) => {
-            let nearest = root.findNearestDescendant(path);
-            if (nearest) {
-                return assembleCodeNodes(nearest);
-            }
+    find: (path) => {
+      let nearest = root.findNearestDescendant(path);
+      if (nearest) {
+        return assembleCodeNodes(nearest);
+      }
 
-            return null;
-        }
-    };
+      return null;
+    }
+  };
 };

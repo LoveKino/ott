@@ -1,6 +1,6 @@
 {
   "name": "ott",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A DSL used to convert an object to a tree",
   "main": "index.js",
   "scripts": {
